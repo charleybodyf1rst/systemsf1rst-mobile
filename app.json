@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "SystemsF1RST",
+    "slug": "systemsf1rst-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "systemsf1rst",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#8B5CF6"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.systemsf1rst.marketplace",
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "SystemsF1RST needs your location to verify clock-in at approved work locations.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "SystemsF1RST needs your location to verify clock-in at approved work locations.",
+        "NSMicrophoneUsageDescription": "SystemsF1RST needs microphone access for voice notes and AI assistant."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#8B5CF6"
+      },
+      "package": "com.systemsf1rst.marketplace",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow SystemsF1RST to use your location for time clock verification."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "systemsf1rst-mobile"
+      }
+    }
+  }
+}
