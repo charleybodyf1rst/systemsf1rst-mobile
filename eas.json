@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 12.0.0"
+    "version": ">= 12.0.0",
+    "appVersionSource": "local"
   },
   "build": {
     "development": {
@@ -14,8 +15,10 @@
       }
     },
     "production": {
+      "autoIncrement": true,
       "ios": {
-        "resourceClass": "m-medium"
+        "resourceClass": "m-medium",
+        "credentialsSource": "remote"
       }
     }
   },
@@ -23,7 +26,6 @@
     "production": {
       "ios": {
         "appleId": "Ken@bodyf1rst.com",
-        "ascAppId": "TBD",
         "appleTeamId": "JQGBF4Y7TY"
       },
       "android": {

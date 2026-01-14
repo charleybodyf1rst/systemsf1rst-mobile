@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = 'https://api.bodyf1rst.net/api';
+const API_BASE_URL = 'https://bodyf1rst-backend-clean-mdkalcrowq-uc.a.run.app/api';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
