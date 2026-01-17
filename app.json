@@ -2,7 +2,7 @@
   "expo": {
     "name": "SystemsF1RST",
     "slug": "systemsf1rst-mobile",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "systemsf1rst",
@@ -22,7 +22,20 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "SystemsF1RST needs your location to verify clock-in at approved work locations.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "SystemsF1RST needs your location to verify clock-in at approved work locations.",
-        "NSMicrophoneUsageDescription": "SystemsF1RST needs microphone access for voice notes and AI assistant."
+        "NSMicrophoneUsageDescription": "SystemsF1RST needs microphone access for voice notes and AI assistant.",
+        "NSCameraUsageDescription": "SystemsF1RST needs camera access for document scanning and profile photos.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "buildNumber": "5",
+      "privacyManifests": {
+        "NSPrivacyAccessedAPITypes": [
+          {
+            "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+            "NSPrivacyAccessedAPITypeReasons": [
+              "CA92.1"
+            ]
+          }
+        ]
       }
     },
     "android": {
@@ -35,8 +48,10 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "RECORD_AUDIO",
+        "CAMERA",
         "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA"
       ]
     },
     "web": {
@@ -51,6 +66,21 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow SystemsF1RST to use your location for time clock verification."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#8B5CF6",
+          "sounds": []
+        }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "systemsf1rst",
+          "project": "systemsf1rst-mobile"
+        }
       ]
     ],
     "experiments": {
@@ -62,6 +92,21 @@
       },
       "eas": {
         "projectId": "fb3f650f-6acc-4af7-824b-1bfb2504a405"
+      },
+      "apiBaseUrl": "https://bodyf1rst-backend-clean-mdkalcrowq-uc.a.run.app/api",
+      "wsHost": "bodyf1rst-backend-clean-mdkalcrowq-uc.a.run.app",
+      "wsPort": 443,
+      "pusherKey": "systemsf1rst-app",
+      "pusherCluster": "mt1",
+      "privacyPolicyUrl": "https://systemsf1rst.com/privacy",
+      "supportUrl": "https://systemsf1rst.com/support",
+      "termsOfServiceUrl": "https://systemsf1rst.com/terms",
+      "appStore": {
+        "subtitle": "AI-Powered Business CRM",
+        "description": "SystemsF1RST is an all-in-one business management platform with AI-powered calling, SMS messaging, CRM, and time tracking. Manage leads, contacts, deals, and communications from your phone.",
+        "keywords": "CRM, AI, sales, leads, business, calling, SMS, messaging, time clock",
+        "primaryCategory": "BUSINESS",
+        "secondaryCategory": "PRODUCTIVITY"
       }
     },
     "owner": "charles_blanchard"

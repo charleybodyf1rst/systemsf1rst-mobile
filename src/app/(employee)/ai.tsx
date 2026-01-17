@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,11 @@ import {
   ScrollView,
   TextInput,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
+import { router } from 'expo-router';
 import { api } from '../../lib/api';
 
 interface QuickAction {
@@ -53,30 +56,73 @@ const quickActions: QuickAction[] = [
 export default function AIAgentScreen() {
   const [message, setMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  const [permissionGranted, setPermissionGranted] = useState(false);
+  const recordingRef = useRef<Audio.Recording | null>(null);
+
+  // Request microphone permission on mount
+  useEffect(() => {
+    const requestPermission = async () => {
+      try {
+        const { status } = await Audio.requestPermissionsAsync();
+        setPermissionGranted(status === 'granted');
+      } catch (error) {
+        console.error('Error requesting microphone permission:', error);
+      }
+    };
+    requestPermission();
+
+    // Cleanup recording on unmount
+    return () => {
+      if (recordingRef.current) {
+        recordingRef.current.stopAndUnloadAsync().catch(() => {});
+      }
+    };
+  }, []);
 
   const handleQuickAction = (action: QuickAction) => {
     switch (action.id) {
       case 'email':
         Alert.alert('Draft Email', 'Who would you like to email?', [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Continue', onPress: () => console.log('Email flow') },
+          {
+            text: 'Continue',
+            onPress: () => {
+              setMessage('Help me draft a professional email to ');
+            }
+          },
         ]);
         break;
       case 'document':
         Alert.alert('Create Document', 'What type of document?', [
-          { text: 'Contract', onPress: () => console.log('Contract') },
-          { text: 'Proposal', onPress: () => console.log('Proposal') },
+          {
+            text: 'Contract',
+            onPress: () => {
+              setMessage('Help me create a contract for ');
+            }
+          },
+          {
+            text: 'Proposal',
+            onPress: () => {
+              setMessage('Help me create a proposal for ');
+            }
+          },
           { text: 'Cancel', style: 'cancel' },
         ]);
         break;
       case 'call':
-        Alert.alert('AI Caller', 'Select a contact to call with AI voice', [
+        Alert.alert('AI Caller', 'Navigate to AI Caller?', [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Select Contact', onPress: () => console.log('Contact picker') },
+          {
+            text: 'Open Caller',
+            onPress: () => {
+              router.push('/(crm)/caller' as any);
+            }
+          },
         ]);
         break;
       case 'chat':
-        // Focus on text input or open chat
+        // Focus on text input - handled by default
         break;
     }
   };
@@ -88,7 +134,7 @@ export default function AIAgentScreen() {
       const response = await api.post('/agent/chat', {
         message: message.trim(),
       });
-      console.log('AI response:', response.data);
+      // TODO: Handle AI response - display in conversation
       setMessage('');
     } catch (error) {
       console.error('AI chat error:', error);
@@ -96,9 +142,85 @@ export default function AIAgentScreen() {
     }
   };
 
-  const toggleListening = () => {
-    setIsListening(!isListening);
-    // TODO: Implement voice input
+  const startRecording = async () => {
+    if (!permissionGranted) {
+      Alert.alert('Permission Required', 'Microphone permission is needed for voice input.');
+      return;
+    }
+
+    try {
+      // Configure audio mode for recording
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      // Create and start recording
+      const recording = new Audio.Recording();
+      await recording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+      await recording.startAsync();
+
+      recordingRef.current = recording;
+      setIsListening(true);
+    } catch (error) {
+      console.error('Failed to start recording:', error);
+      Alert.alert('Error', 'Failed to start voice recording');
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!recordingRef.current) return;
+
+    setIsListening(false);
+    setIsProcessingVoice(true);
+
+    try {
+      await recordingRef.current.stopAndUnloadAsync();
+      const uri = recordingRef.current.getURI();
+      recordingRef.current = null;
+
+      if (uri) {
+        // Send audio to backend for transcription
+        const formData = new FormData();
+        formData.append('audio', {
+          uri,
+          type: 'audio/m4a',
+          name: 'voice-input.m4a',
+        } as unknown as Blob);
+
+        try {
+          const response = await api.post('/agent/transcribe', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+
+          if (response.data?.text) {
+            setMessage(response.data.text);
+          }
+        } catch (transcribeError) {
+          console.error('Transcription error:', transcribeError);
+          Alert.alert('Transcription Failed', 'Could not convert speech to text. Please try typing your message.');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to stop recording:', error);
+    } finally {
+      setIsProcessingVoice(false);
+      // Reset audio mode
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+      });
+    }
+  };
+
+  const toggleListening = async () => {
+    if (isProcessingVoice) return;
+
+    if (isListening) {
+      await stopRecording();
+    } else {
+      await startRecording();
+    }
   };
 
   return (
@@ -142,14 +264,23 @@ export default function AIAgentScreen() {
       {/* Input Area */}
       <View style={styles.inputContainer}>
         <TouchableOpacity
-          style={[styles.voiceButton, isListening && styles.voiceButtonActive]}
+          style={[
+            styles.voiceButton,
+            isListening && styles.voiceButtonActive,
+            isProcessingVoice && styles.voiceButtonProcessing,
+          ]}
           onPress={toggleListening}
+          disabled={isProcessingVoice}
         >
-          <Ionicons
-            name={isListening ? 'mic' : 'mic-outline'}
-            size={24}
-            color={isListening ? '#fff' : '#8B5CF6'}
-          />
+          {isProcessingVoice ? (
+            <ActivityIndicator size="small" color="#8B5CF6" />
+          ) : (
+            <Ionicons
+              name={isListening ? 'mic' : 'mic-outline'}
+              size={24}
+              color={isListening ? '#fff' : '#8B5CF6'}
+            />
+          )}
         </TouchableOpacity>
         <TextInput
           style={styles.input}
@@ -269,6 +400,10 @@ const styles = StyleSheet.create({
   },
   voiceButtonActive: {
     backgroundColor: '#8B5CF6',
+  },
+  voiceButtonProcessing: {
+    backgroundColor: '#334155',
+    borderColor: '#64748B',
   },
   input: {
     flex: 1,

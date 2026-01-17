@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { useAuthStore } from '../../stores/authStore';
 import { useTimeClockStore } from '../../stores/timeClockStore';
+import { CalendarWidget } from '../../components';
 
 export default function TimeClockScreen() {
   const { user } = useAuthStore();
@@ -236,6 +237,11 @@ export default function TimeClockScreen() {
             ))}
           </View>
         )}
+
+        {/* Calendar Widget */}
+        <View style={styles.calendarSection}>
+          <CalendarWidget maxEvents={3} />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -392,5 +398,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#E2E8F0',
     textAlign: 'right',
+  },
+  calendarSection: {
+    marginTop: 24,
   },
 });

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,17 +7,75 @@ import {
   TouchableOpacity,
   Switch,
   Alert,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '../../stores/authStore';
+
+const WEBAPP_URL = 'https://systemsf1rst.com';
+
+const SETTINGS_KEY = '@systemsf1rst_settings';
+
+interface AppSettings {
+  geofenceRequired: boolean;
+  autoApprove: boolean;
+  notifications: boolean;
+  overtimeAlerts: boolean;
+}
+
+const DEFAULT_SETTINGS: AppSettings = {
+  geofenceRequired: true,
+  autoApprove: false,
+  notifications: true,
+  overtimeAlerts: true,
+};
 
 export default function SettingsScreen() {
   const { user, logout } = useAuthStore();
-  const [geofenceRequired, setGeofenceRequired] = useState(true);
-  const [autoApprove, setAutoApprove] = useState(false);
-  const [notifications, setNotifications] = useState(true);
-  const [overtimeAlerts, setOvertimeAlerts] = useState(true);
+  const [geofenceRequired, setGeofenceRequired] = useState(DEFAULT_SETTINGS.geofenceRequired);
+  const [autoApprove, setAutoApprove] = useState(DEFAULT_SETTINGS.autoApprove);
+  const [notifications, setNotifications] = useState(DEFAULT_SETTINGS.notifications);
+  const [overtimeAlerts, setOvertimeAlerts] = useState(DEFAULT_SETTINGS.overtimeAlerts);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load settings from AsyncStorage on mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const savedSettings = await AsyncStorage.getItem(SETTINGS_KEY);
+        if (savedSettings) {
+          const parsed: AppSettings = JSON.parse(savedSettings);
+          setGeofenceRequired(parsed.geofenceRequired ?? DEFAULT_SETTINGS.geofenceRequired);
+          setAutoApprove(parsed.autoApprove ?? DEFAULT_SETTINGS.autoApprove);
+          setNotifications(parsed.notifications ?? DEFAULT_SETTINGS.notifications);
+          setOvertimeAlerts(parsed.overtimeAlerts ?? DEFAULT_SETTINGS.overtimeAlerts);
+        }
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+    loadSettings();
+  }, []);
+
+  // Save settings whenever they change
+  const saveSettings = useCallback(async (settings: AppSettings) => {
+    try {
+      await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+    }
+  }, []);
+
+  // Only save after initial load to avoid overwriting with defaults
+  useEffect(() => {
+    if (isLoaded) {
+      saveSettings({ geofenceRequired, autoApprove, notifications, overtimeAlerts });
+    }
+  }, [geofenceRequired, autoApprove, notifications, overtimeAlerts, isLoaded, saveSettings]);
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
@@ -127,7 +185,10 @@ export default function SettingsScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Organization</Text>
 
-        <TouchableOpacity style={styles.linkItem}>
+        <TouchableOpacity
+          style={styles.linkItem}
+          onPress={() => Linking.openURL(`${WEBAPP_URL}/dashboard/settings/company`)}
+        >
           <View style={styles.linkIcon}>
             <Ionicons name="business" size={20} color="#8B5CF6" />
           </View>
@@ -135,7 +196,10 @@ export default function SettingsScreen() {
           <Ionicons name="chevron-forward" size={20} color="#64748B" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.linkItem}>
+        <TouchableOpacity
+          style={styles.linkItem}
+          onPress={() => Linking.openURL(`${WEBAPP_URL}/dashboard/settings/billing`)}
+        >
           <View style={styles.linkIcon}>
             <Ionicons name="card" size={20} color="#10B981" />
           </View>
@@ -143,7 +207,10 @@ export default function SettingsScreen() {
           <Ionicons name="chevron-forward" size={20} color="#64748B" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.linkItem}>
+        <TouchableOpacity
+          style={styles.linkItem}
+          onPress={() => Linking.openURL(`${WEBAPP_URL}/dashboard/settings/api-keys`)}
+        >
           <View style={styles.linkIcon}>
             <Ionicons name="key" size={20} color="#F59E0B" />
           </View>
@@ -156,7 +223,10 @@ export default function SettingsScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Support</Text>
 
-        <TouchableOpacity style={styles.linkItem}>
+        <TouchableOpacity
+          style={styles.linkItem}
+          onPress={() => Linking.openURL(`${WEBAPP_URL}/help`)}
+        >
           <View style={styles.linkIcon}>
             <Ionicons name="help-circle" size={20} color="#8B5CF6" />
           </View>
@@ -164,7 +234,10 @@ export default function SettingsScreen() {
           <Ionicons name="chevron-forward" size={20} color="#64748B" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.linkItem}>
+        <TouchableOpacity
+          style={styles.linkItem}
+          onPress={() => Linking.openURL('mailto:support@systemsf1rst.com')}
+        >
           <View style={styles.linkIcon}>
             <Ionicons name="chatbubble" size={20} color="#3B82F6" />
           </View>
@@ -172,7 +245,10 @@ export default function SettingsScreen() {
           <Ionicons name="chevron-forward" size={20} color="#64748B" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.linkItem}>
+        <TouchableOpacity
+          style={styles.linkItem}
+          onPress={() => Linking.openURL(`${WEBAPP_URL}/privacy`)}
+        >
           <View style={styles.linkIcon}>
             <Ionicons name="document-text" size={20} color="#10B981" />
           </View>
