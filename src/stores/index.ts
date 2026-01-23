@@ -5,6 +5,9 @@ export { useCallerStore } from './callerStore';
 export { useMessagingStore } from './messagingStore';
 export { useAgentStore } from './agentStore';
 export { useCalendarStore } from './calendarStore';
+export { useHRStore } from './hrStore';
+export { useProjectsStore } from './projectsStore';
+export { useVaultStore } from './vaultStore';
 
 export type { User } from './authStore';
 export type { TimeClock, WeeklySummary } from './timeClockStore';
@@ -13,3 +16,6 @@ export type { AICall, Voice, CallScript } from './callerStore';
 export type { Conversation, Message, Participant } from './messagingStore';
 export type { AgentSession, AgentMessage, PendingApproval, AgentTool, ToolCall, ToolResult } from './agentStore';
 export type { CalendarEvent, ExternalCalendar, Attendee, CreateEventParams } from './calendarStore';
+export type { Employee, Department, Schedule, TimeOffRequest, EmployeeStatus, EmploymentType } from './hrStore';
+export type { Project, Task, TeamMember, SubTask, TaskComment, ProjectStatus, TaskStatus, TaskPriority } from './projectsStore';
+export type { VaultItem, VaultFolder, VaultItemType, VaultCategory, VaultMetrics } from './vaultStore';
