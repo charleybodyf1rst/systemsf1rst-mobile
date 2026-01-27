@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Ale
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useAgentStore, PendingApproval } from '../../stores/agentStore';
+import { useOrchestraStore, PendingApproval } from '../../stores/orchestra-store';
 
 export default function ApprovalsScreen() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function ApprovalsScreen() {
     fetchPendingApprovals,
     approveAction,
     rejectAction,
-  } = useAgentStore();
+  } = useOrchestraStore();
 
   useEffect(() => {
     fetchPendingApprovals();

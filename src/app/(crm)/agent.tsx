@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Keyboard
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useAgentStore, AgentMessage, ToolCall, PendingApproval } from '../../stores/agentStore';
+import { useOrchestraStore, AgentMessage, ToolCall, PendingApproval } from '../../stores/orchestra-store';
 
 export default function AgentScreen() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function AgentScreen() {
     approveAction,
     rejectAction,
     createNewSession,
-  } = useAgentStore();
+  } = useOrchestraStore();
 
   useEffect(() => {
     fetchPendingApprovals();

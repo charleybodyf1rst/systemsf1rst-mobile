@@ -1,5 +1,6 @@
-// Agent Store for SystemsF1RST Mobile
-// Manages AI Agent sessions, tool execution, and approvals
+// Orchestra Store for SystemsF1RST Mobile
+// Manages AI Orchestra sessions, tool execution, and approvals
+// Unified naming across all 4 SystemsF1RST apps
 
 import { create } from 'zustand';
 import api from '../lib/api';
@@ -96,7 +97,7 @@ interface AgentState {
   handleToolExecuted: (toolCallId: string, result: ToolResult) => void;
 }
 
-export const useAgentStore = create<AgentState>((set, get) => ({
+export const useOrchestraStore = create<AgentState>((set, get) => ({
   // Initial state
   sessions: [],
   currentSession: null,
@@ -376,3 +377,6 @@ export const useAgentStore = create<AgentState>((set, get) => ({
     }
   },
 }));
+
+// Backwards compatibility alias
+export const useAgentStore = useOrchestraStore;

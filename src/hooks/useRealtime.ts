@@ -1,7 +1,7 @@
 // Hook to integrate realtime WebSocket updates with stores
 import { useEffect, useState, useCallback } from 'react';
 import { realtimeService, CrmUpdateEvent, CalendarUpdateEvent, AgentUpdateEvent, NotificationEvent } from '../lib/realtime';
-import { useCrmStore, useCalendarStore, useAgentStore, useAuthStore } from '../stores';
+import { useCrmStore, useCalendarStore, useOrchestraStore, useAuthStore } from '../stores';
 import { Alert, Vibration, Platform } from 'react-native';
 
 interface UseRealtimeOptions {
@@ -18,7 +18,7 @@ export function useRealtime(options: UseRealtimeOptions = {}) {
   const { user, isAuthenticated } = useAuthStore();
   const crmStore = useCrmStore();
   const calendarStore = useCalendarStore();
-  const agentStore = useAgentStore();
+  const orchestraStore = useOrchestraStore();
 
   // Handle CRM updates
   const handleCrmUpdate = useCallback((event: CrmUpdateEvent) => {
@@ -40,9 +40,9 @@ export function useRealtime(options: UseRealtimeOptions = {}) {
     // The agent store handles these through its own mechanisms
     // But we can trigger a refresh for pending approvals
     if (event.type === 'approval_required') {
-      agentStore.fetchPendingApprovals();
+      orchestraStore.fetchPendingApprovals();
     }
-  }, [agentStore]);
+  }, [orchestraStore]);
 
   // Handle Notifications
   const handleNotification = useCallback((event: NotificationEvent) => {
